@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller UAM - Programación Procedimental</title>
-
-    <!-- Tailwind CSS (CDN para estilos rápidos) -->
+    <title>Laboratorio y Simulador UAM: Programación Procedimental</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Configuración de colores UAM -->
+    
+    <!-- Configuración de colores institucionales UAM -->
     <script>
         tailwind.config = {
             theme: {
@@ -31,61 +30,75 @@
         }
     </script>
 
-    <!-- Lucide Icons (CDN) -->
+    <!-- Lucide Icons (CDN para pestañas visuales) -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Estilos personalizados combinados -->
     <style>
-        /* Estilos adicionales para animaciones suaves */
-        .transition-all {
-            transition: all 0.5s ease;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        details>summary {
-            list-style: none;
-        }
-
-        details>summary::-webkit-details-marker {
-            display: none;
-        }
-
-        /* Animación de pulso personalizada */
+        body { background-color: #f3f4f6; }
+        
+        /* Utilidades para los Simuladores */
+        .transition-all { transition: all 0.5s ease; }
+        .hidden { display: none !important; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        
         @keyframes customPulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.5;
-                transform: scale(1.1);
-            }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
         }
-
         .animate-custom-pulse {
             animation: customPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+
+        /* Tema oscuro para el código fuente del Laboratorio */
+        .codigo-fuente { 
+            background-color: #1f2937; 
+            color: #a7f3d0; 
+            font-family: 'Consolas', monospace; 
+            padding: 1.25rem; 
+            border-radius: 0.5rem; 
+            overflow-x: auto; 
+            font-size: 0.9rem; 
+            margin-bottom: 1.25rem; 
+            border-left: 4px solid #10b981; 
+            white-space: pre-wrap; 
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Tema de terminal para la salida del Laboratorio */
+        .consola { 
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+            font-family: 'Consolas', monospace; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            min-height: 4rem; 
+            white-space: pre-wrap; 
+            font-size: 0.95rem; 
+            border-left: 4px solid #F4D73B; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Colores de resaltado de sintaxis */
+        .palabra-clave { color: #60a5fa; }
+        .comentario { color: #9ca3af; font-style: italic; }
+        .string { color: #fca5a5; }
     </style>
 </head>
+<body class="text-gray-800 font-sans">
 
-<body class="bg-gray-50 text-gray-800 min-h-screen">
-
-    <!-- Header Institucional -->
+    <!-- Header Institucional UAM -->
     <header class="text-white p-6 shadow-md bg-uam-primary">
         <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold flex items-center gap-3">
-                    <i data-lucide="book-open" class="text-uam-secondary" style="width: 32px; height: 32px;"></i>
-                    Taller de Programación Procedimental
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F4D73B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    Plataforma de Programación Procedimental
                 </h1>
-                <p class="mt-2 text-blue-100 text-lg">Unidad 3: Funciones y Alcance en JavaScript</p>
+                <p class="mt-2 text-blue-100 text-lg">Unidad 3: Subprogramas, Alcance y Parámetros</p>
             </div>
-            <div class="mt-4 md:mt-0 font-bold px-4 py-2 rounded-full border-2 border-uam-secondary text-uam-secondary">
+            <div class="mt-4 md:mt-0 font-bold px-5 py-2 rounded-full border-2 border-uam-secondary text-uam-secondary bg-uam-primary/50 backdrop-blur-sm">
                 UAM
             </div>
         </div>
@@ -93,23 +106,23 @@
 
     <!-- Navegación de Pestañas -->
     <nav class="max-w-5xl mx-auto mt-8 px-4 flex flex-wrap gap-2" id="tabs-nav">
-        <button onclick="switchTab('intro')" id="btn-intro"
-            class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-white text-uam-primary border-t-4 border-uam-secondary shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <button onclick="switchTab('intro')" id="btn-intro" class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-white text-uam-primary border-t-4 border-uam-secondary shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
             1. Introducción
         </button>
-        <button onclick="switchTab('alcance')" id="btn-alcance"
-            class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300">
-            2. Alcance (Global vs Local)
+        <button onclick="switchTab('alcance')" id="btn-alcance" class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300">
+            2. Simulador: Alcance
         </button>
-        <button onclick="switchTab('valor')" id="btn-valor"
-            class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300">
-            3. Paso por Valor
+        <button onclick="switchTab('valor')" id="btn-valor" class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300">
+            3. Simulador: Valor
+        </button>
+        <button onclick="switchTab('laboratorio')" id="btn-laboratorio" class="tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300">
+            <span class="flex items-center gap-2"><i data-lucide="terminal" class="w-4 h-4"></i> 4. Laboratorio Práctico</span>
         </button>
     </nav>
 
     <!-- Contenedor Principal -->
-    <main class="max-w-5xl mx-auto mt-4 px-4 pb-12">
-        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+    <main class="max-w-5xl mx-auto mt-0 px-4 pb-12">
+        <div class="bg-white rounded-b-xl rounded-tr-xl shadow-lg border border-gray-100 overflow-hidden">
 
             <!-- ============================================== -->
             <!-- MÓDULO 1: INTRODUCCIÓN                         -->
@@ -118,10 +131,8 @@
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-uam-primary">Funciones y Procedimientos</h2>
                     <p class="mt-2 text-gray-600">
-                        Un <strong>subprograma</strong> es como un "mini-programa" dentro de tu código principal.
-                        Siguiendo la <em>Metáfora de la Fábrica</em>, dividimos el trabajo en especialistas para mejorar
-                        la <strong>reutilización</strong>, la <strong>legibilidad</strong> y el
-                        <strong>mantenimiento</strong> del código.
+                        Un <strong>subprograma</strong> es como un "mini-programa" dentro de tu código principal. 
+                        Siguiendo la <em>Metáfora de la Fábrica</em>, dividimos el trabajo en especialistas para mejorar la <strong>reutilización</strong>, la <strong>legibilidad</strong> y el <strong>mantenimiento</strong> del código.
                     </p>
                 </div>
 
@@ -131,14 +142,11 @@
                             <i data-lucide="zap" class="text-uam-primary"></i> La Acción (Procedimiento)
                         </h3>
                         <p class="text-sm text-gray-700 mb-3">
-                            Orden directa para ejecutar una tarea. <strong>NO</strong> devuelve una respuesta
-                            utilizable. En JS no usamos <code>void</code> explícitamente, pero el concepto es el mismo.
+                            Orden directa para ejecutar una tarea. <strong>NO</strong> devuelve una respuesta utilizable. En JS no usamos <code>void</code> explícitamente, pero el concepto es el mismo.
                         </p>
                         <div class="bg-gray-900 rounded p-3 font-mono text-xs text-gray-200">
-                            <span class="text-blue-400">function</span> <span class="text-yellow-200">saludar</span>()
-                            {<br>
-                            &nbsp;&nbsp;console.<span class="text-blue-300">log</span>(<span
-                                class="text-green-400">"¡Hola, clase!"</span>);<br>
+                            <span class="text-blue-400">function</span> <span class="text-yellow-200">saludar</span>() {<br>
+                            &nbsp;&nbsp;console.<span class="text-blue-300">log</span>(<span class="text-green-400">"¡Hola, clase!"</span>);<br>
                             }
                         </div>
                     </div>
@@ -148,17 +156,14 @@
                             <i data-lucide="calculator" class="text-yellow-600"></i> El Cálculo (Función)
                         </h3>
                         <p class="text-sm text-gray-700 mb-3">
-                            Realiza una operación y obligatoriamente <strong>DEVUELVE</strong> un resultado útil a
-                            través de la palabra reservada <code>return</code>.
+                            Realiza una operación y obligatoriamente <strong>DEVUELVE</strong> un resultado útil a través de la palabra reservada <code>return</code>.
                         </p>
                         <div class="bg-gray-900 rounded p-3 font-mono text-xs text-gray-200">
-                            <span class="text-blue-400">function</span> <span class="text-yellow-200">sumar</span>(a, b)
-                            {<br>
+                            <span class="text-blue-400">function</span> <span class="text-yellow-200">sumar</span>(a, b) {<br>
                             &nbsp;&nbsp;<span class="text-purple-400">return</span> a + b;<br>
                             }<br><br>
                             <span class="text-gray-400">// Almacenamos el retorno:</span><br>
-                            <span class="text-blue-400">let</span> resultado = sumar(<span
-                                class="text-orange-400">5</span>, <span class="text-orange-400">2</span>);
+                            <span class="text-blue-400">let</span> resultado = sumar(<span class="text-orange-400">5</span>, <span class="text-orange-400">2</span>);
                         </div>
                     </div>
                 </div>
@@ -169,12 +174,9 @@
                     </h3>
                     <div class="flex flex-col md:flex-row gap-6">
                         <div class="flex-1 bg-white p-4 rounded border border-gray-200">
-                            <div class="mb-2 font-bold text-uam-primary">1. El Parámetro (La Receta) Lo que espera,
-                                escucha </div>
-                            <p class="text-sm text-gray-600 mb-3">Es la variable definida en la declaración. Es el
-                                "espacio reservado".</p>
-                            <code
-                                class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-mono block text-center border border-gray-200">
+                            <div class="mb-2 font-bold text-uam-primary">1. El Parámetro (La Receta)</div>
+                            <p class="text-sm text-gray-600 mb-3">Es la variable definida en la declaración. Es el "espacio reservado".</p>
+                            <code class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-mono block text-center border border-gray-200">
                                 function cocinar(<strong class="text-blue-600">ingrediente</strong>)
                             </code>
                         </div>
@@ -182,25 +184,18 @@
                             <i data-lucide="chevron-right" style="width: 32px; height: 32px;"></i>
                         </div>
                         <div class="flex-1 bg-white p-4 rounded border border-gray-200">
-                            <div class="mb-2 font-bold text-yellow-600">2. El Argumento (El Invitado) Lo que se envia,
-                                habla</div>
-                            <p class="text-sm text-gray-600 mb-3">Es el valor real enviado al momento de invocar
-                                (llamar) la función.</p>
-                            <code
-                                class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-mono block text-center border border-gray-200">
+                            <div class="mb-2 font-bold text-yellow-600">2. El Argumento (El Invitado)</div>
+                            <p class="text-sm text-gray-600 mb-3">Es el valor real enviado al momento de invocar (llamar) la función.</p>
+                            <code class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-mono block text-center border border-gray-200">
                                 cocinar(<strong class="text-orange-600">"Pollo"</strong>);
                             </code>
                         </div>
                     </div>
-
-                    <div
-                        class="mt-6 p-3 bg-gray-800 text-gray-200 rounded-lg text-sm flex items-start gap-3 shadow-inner">
+                    
+                    <div class="mt-6 p-3 bg-gray-800 text-gray-200 rounded-lg text-sm flex items-start gap-3 shadow-inner">
                         <i data-lucide="code" class="shrink-0 mt-0.5 text-green-400"></i>
                         <span>
-                            <strong class="text-green-400">El Secreto de C y TypeScript:</strong> En lenguajes tipados
-                            estrictos, la diferencia entre Función y Procedimiento es aún más clara, ya que te obligan a
-                            colocar la palabra <code>void</code> si no hay retorno, o el tipo de dato (ej.
-                            <code>int</code>) si sí lo hay.
+                            <strong class="text-green-400">El Secreto de C y TypeScript:</strong> En lenguajes tipados estrictos, la diferencia entre Función y Procedimiento es aún más clara, ya que te obligan a colocar la palabra <code>void</code> si no hay retorno, o el tipo de dato (ej. <code>int</code>) si sí lo hay.
                         </span>
                     </div>
 
@@ -210,52 +205,25 @@
                             <i data-lucide="book-open"></i> Ejercicio del Taller
                         </h4>
                         <p class="text-gray-700">
-                            Observa el ejemplo de la función <code>saludar()</code> que vimos arriba. Si intentáramos
-                            guardar su resultado en una variable haciendo la asignación
-                            <code>let miSaludo = saludar();</code>, ¿qué valor exacto crees que se guardaría dentro de
-                            <code>miSaludo</code> en JavaScript, considerando que ese procedimiento <strong>no</strong>
-                            tiene un <code>return</code>?
+                            Observa el ejemplo de la función <code>saludar()</code> que vimos arriba. Si intentáramos guardar su resultado en una variable haciendo la asignación <code>let miSaludo = saludar();</code>, ¿qué valor exacto crees que se guardaría dentro de <code>miSaludo</code> en JavaScript, considerando que ese procedimiento <strong>no</strong> tiene un <code>return</code>?
                         </p>
                         <details class="mt-4 cursor-pointer text-sm">
-                            <summary class="font-bold text-uam-primary hover:underline flex items-center gap-1"><i
-                                    data-lucide="chevron-right" class="w-4 h-4"></i> Revelar Pista</summary>
-                            <p class="mt-2 text-gray-600 bg-white p-3 rounded border border-gray-200 shadow-sm">En
-                                lenguajes como JavaScript, si una función termina su ejecución y no devuelve nada
-                                explícitamente, por defecto devuelve el valor <code>undefined</code> (indefinido).</p>
+                            <summary class="font-bold text-uam-primary hover:underline flex items-center gap-1"><i data-lucide="chevron-right" class="w-4 h-4"></i> Revelar Pista</summary>
+                            <p class="mt-2 text-gray-600 bg-white p-3 rounded border border-gray-200 shadow-sm">En lenguajes como JavaScript, si una función termina su ejecución y no devuelve nada explícitamente, por defecto devuelve el valor <code>undefined</code> (indefinido).</p>
                         </details>
-                    </div>
-                    <div>
-                        <p>LUCIANA ARIAS ARIAS <br>
-                            YEISON DAVID ARIAS OSPINA <br>
-                            JUAN ANDRÉS BETANCURT ARIAS <br>
-                            MARIA ALEJANDRA CARDONA BEDOYA <br>
-                            DANIER JOHAN CIFUENTES DÍAZ <br>
-                            LUISA FERNANDA DELGADO PATIÑO <br>
-                            CAROL DAYANA GIRALDO OSPINA <br>
-                            DANNA CAMILA GIRALDO RAMÍREZ <br>
-                            LORENZO GONZÁLEZ GIRALDO <br>
-                            ANA MARÍA NOREÑA QUINTERO <br>
-                            MICHEL ALEJANDRA PELAEZ RAMÍREZ <br>
-                            LAURA QUINTERO OCAMPO <br>
-                            EMMANUEL QUIROGA LOAIZA <br>
-                            JUAN ESTEBAN RUEDA CIFUENTES <br>
-                            FREDERICK GIOVANNY SOSA FLOREZ <br>
-                        </p>
                     </div>
                 </div>
             </div>
 
             <!-- ============================================== -->
-            <!-- MÓDULO 2: ALCANCE                              -->
+            <!-- MÓDULO 2: ALCANCE SIMULADOR                    -->
             <!-- ============================================== -->
             <div id="tab-alcance" class="tab-content hidden p-6 md:p-8">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-uam-primary">¿Dónde vive mi variable?</h2>
                     <p class="mt-2 text-gray-600">
-                        En JavaScript, las variables declaradas fuera de cualquier función son
-                        <strong>Globales</strong>.
-                        Las declaradas con <code>let</code> o <code>const</code> dentro de las llaves <code>{ }</code>
-                        de una función o un bloque son <strong>Locales / de Bloque</strong> y se destruyen al terminar.
+                        En JavaScript, las variables declaradas fuera de cualquier función son <strong>Globales</strong>. 
+                        Las declaradas con <code>let</code> o <code>const</code> dentro de las llaves <code>{ }</code> de una función o un bloque son <strong>Locales / de Bloque</strong> y se destruyen al terminar.
                     </p>
                 </div>
 
@@ -289,11 +257,10 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Sal
                         <h3 class="font-bold mb-4 flex items-center gap-2 text-uam-primary">
                             <i data-lucide="play" class="w-5 h-5"></i> Simulador de Memoria
                         </h3>
-
+                        
                         <div class="flex-1 space-y-4">
                             <!-- Memoria Global -->
-                            <div id="alc-global-box"
-                                class="p-4 rounded-lg border-2 border-gray-200 bg-white transition-all">
+                            <div id="alc-global-box" class="p-4 rounded-lg border-2 border-gray-200 bg-white transition-all">
                                 <div class="text-xs font-bold text-gray-500 mb-1">MEMORIA GLOBAL</div>
                                 <div class="flex justify-between items-center">
                                     <span class="font-mono font-bold">saldoBancario</span>
@@ -302,13 +269,9 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Sal
                             </div>
 
                             <!-- Memoria Local -->
-                            <div id="alc-local-box"
-                                class="p-4 rounded-lg border-2 border-gray-200 bg-gray-100 opacity-50 transition-all overflow-hidden relative">
-                                <div id="alc-local-overlay"
-                                    class="absolute inset-0 bg-gray-200/80 hidden items-center justify-center font-bold text-red-500 z-10">
-                                    DESTRUIDA DE LA MEMORIA</div>
-                                <div class="text-xs font-bold text-gray-500 mb-1">MEMORIA LOCAL (intentarModificar)
-                                </div>
+                            <div id="alc-local-box" class="p-4 rounded-lg border-2 border-gray-200 bg-gray-100 opacity-50 transition-all overflow-hidden relative">
+                                <div id="alc-local-overlay" class="absolute inset-0 bg-gray-200/80 hidden items-center justify-center font-bold text-red-500 z-10">DESTRUIDA DE LA MEMORIA</div>
+                                <div class="text-xs font-bold text-gray-500 mb-1">MEMORIA LOCAL (intentarModificar)</div>
                                 <div class="flex justify-between items-center">
                                     <span class="font-mono font-bold">bono</span>
                                     <span id="alc-local-val" class="text-xl font-bold text-yellow-700">???</span>
@@ -317,12 +280,10 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Sal
                         </div>
 
                         <div class="mt-6 flex gap-3">
-                            <button onclick="runAlcanceSimulation()"
-                                class="flex-1 py-2 rounded font-bold text-white transition-colors flex items-center justify-center gap-2 bg-uam-primary hover:bg-blue-800">
+                            <button onclick="runAlcanceSimulation()" class="flex-1 py-2 rounded font-bold text-white transition-colors flex items-center justify-center gap-2 bg-uam-primary hover:bg-blue-800">
                                 <i data-lucide="play" class="w-4 h-4"></i> Ejecutar Programa
                             </button>
-                            <button id="alc-reset-btn" onclick="resetAlcanceSimulation()"
-                                class="hidden px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 transition-colors">
+                            <button id="alc-reset-btn" onclick="resetAlcanceSimulation()" class="hidden px-4 py-2 rounded border border-gray-300 hover:bg-gray-100 transition-colors">
                                 <i data-lucide="rotate-ccw" class="w-4 h-4 text-gray-600"></i>
                             </button>
                         </div>
@@ -335,32 +296,24 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Sal
                         <i data-lucide="book-open"></i> Ejercicio del Taller
                     </h4>
                     <p class="text-gray-700">
-                        Imagínate que utilizamos un bucle típico: <code>for (let i = 0; i < 5; i++) { ... }</code>.
-                        ¿Crees que la variable iteradora <code>i</code> existirá o será accesible en la línea de código
-                        que está justo <em>después</em> de que el bucle termine?
+                        Imagínate que utilizamos un bucle típico: <code>for (let i = 0; i < 5; i++) { ... }</code>. ¿Crees que la variable iteradora <code>i</code> existirá o será accesible en la línea de código que está justo <em>después</em> de que el bucle termine?
                     </p>
                     <details class="mt-4 cursor-pointer text-sm">
-                        <summary class="font-bold text-uam-primary hover:underline flex items-center gap-1"><i
-                                data-lucide="chevron-right" class="w-4 h-4"></i> Revelar Pista</summary>
-                        <p class="mt-2 text-gray-600 bg-white p-3 rounded border border-gray-200 shadow-sm">Recuerda la
-                            regla de <strong>Visibilidad Restringida</strong> que vimos en clase. Las variables
-                            declaradas con <code>let</code> nacen y mueren únicamente dentro de las llaves
-                            <code>{ }</code> de su estructura de control.</p>
+                        <summary class="font-bold text-uam-primary hover:underline flex items-center gap-1"><i data-lucide="chevron-right" class="w-4 h-4"></i> Revelar Pista</summary>
+                        <p class="mt-2 text-gray-600 bg-white p-3 rounded border border-gray-200 shadow-sm">Recuerda la regla de <strong>Visibilidad Restringida</strong> que vimos en clase. Las variables declaradas con <code>let</code> nacen y mueren únicamente dentro de las llaves <code>{ }</code> de su estructura de control.</p>
                     </details>
                 </div>
             </div>
 
             <!-- ============================================== -->
-            <!-- MÓDULO 3: PASO POR VALOR                       -->
+            <!-- MÓDULO 3: VALOR SIMULADOR                      -->
             <!-- ============================================== -->
             <div id="tab-valor" class="tab-content hidden p-6 md:p-8">
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-uam-primary">Paso por Valor (La Fotocopia)</h2>
                     <p class="mt-2 text-gray-600">
-                        En JavaScript, cuando pasamos un dato primitivo (como un <code>Number</code>,
-                        <code>String</code> o <code>Boolean</code>) a una función,
-                        el programa hace una <strong>copia</strong>. Si la función modifica el parámetro, solo está
-                        rayando la fotocopia. ¡El original está a salvo!
+                        En JavaScript, cuando pasamos un dato primitivo (como un <code>Number</code>, <code>String</code> o <code>Boolean</code>) a una función, 
+                        el programa hace una <strong>copia</strong>. Si la función modifica el parámetro, solo está rayando la fotocopia. ¡El original está a salvo!
                     </p>
                 </div>
 
@@ -388,16 +341,14 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
                         <h3 class="font-bold mb-4 flex items-center gap-2 text-uam-primary">
                             Visualizador de Paso por Valor
                         </h3>
-
+                        
                         <div class="flex-1 flex gap-4 mt-4">
                             <!-- Función Main -->
-                            <div
-                                class="flex-1 bg-white p-4 border rounded-lg flex flex-col items-center justify-center relative">
+                            <div class="flex-1 bg-white p-4 border rounded-lg flex flex-col items-center justify-center relative">
                                 <span class="text-xs font-bold text-gray-500 absolute top-2 left-2">main()</span>
                                 <div class="mt-4 text-center">
                                     <span class="font-mono font-bold block mb-2">miCena (Original)</span>
-                                    <div
-                                        class="w-16 h-16 rounded-full border-4 border-uam-primary flex items-center justify-center text-2xl font-bold bg-blue-50 text-uam-primary mx-auto">
+                                    <div class="w-16 h-16 rounded-full border-4 border-uam-primary flex items-center justify-center text-2xl font-bold bg-blue-50 text-uam-primary mx-auto">
                                         1
                                     </div>
                                     <span class="text-xs text-gray-500 mt-2 block">1 = Crudo</span>
@@ -405,46 +356,36 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
                             </div>
 
                             <!-- Flecha de Copia -->
-                            <div class="flex flex-col justify-center items-center opacity-0 transition-opacity"
-                                id="val-arrow-container">
-                                <i data-lucide="chevron-right"
-                                    class="text-gray-400 mb-2 animate-custom-pulse w-8 h-8"></i>
+                            <div class="flex flex-col justify-center items-center opacity-0 transition-opacity" id="val-arrow-container">
+                                <i data-lucide="chevron-right" class="text-gray-400 mb-2 animate-custom-pulse w-8 h-8"></i>
                                 <span class="text-[10px] uppercase font-bold text-gray-500">Se Copia</span>
                             </div>
 
                             <!-- Función cocinar -->
-                            <div id="val-local-box"
-                                class="flex-1 p-4 border border-gray-200 bg-gray-100 opacity-30 rounded-lg flex flex-col items-center justify-center relative transition-all">
+                            <div id="val-local-box" class="flex-1 p-4 border border-gray-200 bg-gray-100 opacity-30 rounded-lg flex flex-col items-center justify-center relative transition-all">
                                 <span class="text-xs font-bold text-gray-500 absolute top-2 left-2">cocinar()</span>
                                 <div class="mt-4 text-center">
                                     <span class="font-mono font-bold block mb-2">ingrediente</span>
-                                    <div id="val-local-circle"
-                                        class="w-16 h-16 rounded-full border-4 border-gray-400 bg-gray-50 text-gray-500 flex items-center justify-center text-2xl font-bold transition-colors duration-500 mx-auto">
+                                    <div id="val-local-circle" class="w-16 h-16 rounded-full border-4 border-gray-400 bg-gray-50 text-gray-500 flex items-center justify-center text-2xl font-bold transition-colors duration-500 mx-auto">
                                         ?
                                     </div>
-                                    <span id="val-local-label"
-                                        class="text-xs text-yellow-600 mt-2 block font-bold opacity-0 transition-opacity">2
-                                        = Cocinado</span>
+                                    <span id="val-local-label" class="text-xs text-yellow-600 mt-2 block font-bold opacity-0 transition-opacity">2 = Cocinado</span>
                                 </div>
-                                <div id="val-local-overlay"
-                                    class="absolute inset-0 bg-red-50/90 hidden flex-col items-center justify-center font-bold text-red-500 rounded-lg z-10">
+                                <div id="val-local-overlay" class="absolute inset-0 bg-red-50/90 hidden flex-col items-center justify-center font-bold text-red-500 rounded-lg z-10">
                                     <i data-lucide="alert-triangle" class="mb-1"></i> DESTRUIDO
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            class="mt-6 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm flex items-start gap-2 border border-blue-100">
+                        <div class="mt-6 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm flex items-start gap-2 border border-blue-100">
                             <i data-lucide="check-circle-2" class="shrink-0 mt-0.5 text-uam-primary w-5 h-5"></i>
                             <span>
-                                <strong>Conclusión:</strong> Al terminar la función, la copia se destruye. La variable
-                                <code>miCena</code> en el programa principal nunca se vio afectada.
+                                <strong>Conclusión:</strong> Al terminar la función, la copia se destruye. La variable <code>miCena</code> en el programa principal nunca se vio afectada.
                             </span>
                         </div>
 
                         <div class="mt-4 flex gap-3">
-                            <button onclick="runValorSimulation()"
-                                class="flex-1 py-2 rounded font-bold text-white transition-colors flex items-center justify-center gap-2 bg-uam-primary hover:bg-blue-800">
+                            <button onclick="runValorSimulation()" class="flex-1 py-2 rounded font-bold text-white transition-colors flex items-center justify-center gap-2 bg-uam-primary hover:bg-blue-800">
                                 <i data-lucide="play" class="w-4 h-4"></i> Ver Simulación
                             </button>
                         </div>
@@ -457,50 +398,204 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
                         <i data-lucide="book-open"></i> Ejercicio del Taller
                     </h4>
                     <p class="text-gray-700">
-                        Ya comprobamos que el paso por valor NO modifica la variable original. Si este fuera tu
-                        programa, ¿qué modificaciones específicas tendríamos que hacer en el código (usando la palabra
-                        <code>return</code> y una <code>reasignación</code>) para lograr que <code>miCena</code> sí
-                        termine con el valor final de <code>2</code> (Cocinado)?
+                        Ya comprobamos que el paso por valor NO modifica la variable original. Si este fuera tu programa, ¿qué modificaciones específicas tendríamos que hacer en el código (usando la palabra <code>return</code> y una <code>reasignación</code>) para lograr que <code>miCena</code> sí termine con el valor final de <code>2</code> (Cocinado)?
                     </p>
                     <details class="mt-4 cursor-pointer text-sm">
-                        <summary class="font-bold text-uam-primary hover:underline flex items-center gap-1"><i
-                                data-lucide="chevron-right" class="w-4 h-4"></i> Revelar Pista</summary>
+                        <summary class="font-bold text-uam-primary hover:underline flex items-center gap-1"><i data-lucide="chevron-right" class="w-4 h-4"></i> Revelar Pista</summary>
                         <p class="mt-2 text-gray-600 bg-white p-3 rounded border border-gray-200 shadow-sm">
-                            En la función, tendrías que devolver el nuevo valor (<code>return ingrediente;</code>). Y en
-                            el programa principal, en lugar de solo invocar la función al aire libre, deberías capturar
-                            ese retorno y sobreescribir la variable original: <code>miCena = cocinar(miCena);</code>.
+                            En la función, tendrías que devolver el nuevo valor (<code>return ingrediente;</code>). Y en el programa principal, en lugar de solo invocar la función al aire libre, deberías capturar ese retorno y sobreescribir la variable original: <code>miCena = cocinar(miCena);</code>.
                         </p>
                     </details>
                 </div>
             </div>
 
+            <!-- ============================================== -->
+            <!-- MÓDULO 4: LABORATORIO PRÁCTICO                 -->
+            <!-- ============================================== -->
+            <div id="tab-laboratorio" class="tab-content hidden p-6 md:p-8 bg-[#f8fafc]">
+                
+                <div class="mb-10 text-center md:text-left bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-uam-primary mb-2">Entorno de Prácticas de Código</h2>
+                    <p class="text-gray-600">Instrucción: Lea el análisis teórico, examine el código fuente expuesto y ejecute cada módulo para observar el resultado en la consola simulada.</p>
+                </div>
+
+                <!-- Eje 1: Ámbito de Variables -->
+                <section class="mb-12 bg-white p-6 md:p-8 rounded-xl shadow-md border-t-4 border-uam-primary">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-uam-primary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">I</span>
+                        Ámbito de Variables (Scope) y Memoria
+                    </h2>
+                    
+                    <div class="mb-6 text-gray-700 space-y-3 text-justify">
+                        <p><strong>Fundamento:</strong> El ámbito determina la visibilidad y el ciclo de vida de una variable en la memoria (Stack). Las <strong>variables globales</strong> residen en memoria durante toda la ejecución, lo que representa un riesgo de seguridad y dificulta la depuración. Las <strong>variables locales</strong> nacen al invocar la función y se destruyen al finalizar (<code>return</code>), garantizando el encapsulamiento de los datos.</p>
+                        <p>En el siguiente código, observaremos una variable global (<code>impuestoGlobal</code>), una variable local (<code>costoLogistica</code>) y una variable de bloque (<code>descuentoEspecial</code>), la cual solo existe dentro de la estructura condicional <code>if</code>.</p>
+                    </div>
+
+                    <div class="codigo-fuente"><span class="comentario">// 1. Variable Global</span>
+<span class="palabra-clave">let</span> impuestoGlobal = 0.19; 
+
+<span class="palabra-clave">function</span> calcularPrecioFinal(precioBase) {
+    <span class="comentario">// 2. Variable Local</span>
+    <span class="palabra-clave">let</span> costoLogistica = 5000; 
+    <span class="palabra-clave">let</span> historial = <span class="string">"Precio base: $"</span> + precioBase + <span class="string">"\n"</span>;
+
+    <span class="palabra-clave">if</span> (precioBase > 100000) {
+        <span class="comentario">// 3. Variable de Bloque (Solo existe en este if)</span>
+        <span class="palabra-clave">let</span> descuentoEspecial = 0.10; 
+        <span class="palabra-clave">let</span> valorDescuento = precioBase * descuentoEspecial;
+        precioBase = precioBase - valorDescuento;
+        historial += <span class="string">"Descuento aplicado: -$"</span> + valorDescuento + <span class="string">"\n"</span>;
+    }
+    
+    <span class="palabra-clave">let</span> total = precioBase + (precioBase * impuestoGlobal) + costoLogistica;
+    historial += <span class="string">"Total Final: $"</span> + total;
+    <span class="palabra-clave">return</span> historial;
+}</div>
+
+                    <button onclick="ejecutarEje1()" class="bg-uam-primary hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg mb-4 transition-colors w-full md:w-auto flex items-center justify-center gap-2 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Ejecutar Módulo I
+                    </button>
+                    <div id="out-eje1" class="consola">Esperando ejecución...</div>
+                </section>
+
+                <!-- Eje 2: Funciones vs Procedimientos -->
+                <section class="mb-12 bg-white p-6 md:p-8 rounded-xl shadow-md border-t-4 border-uam-primary">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-uam-primary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">II</span>
+                        Funciones vs. Procedimientos
+                    </h2>
+                    
+                    <div class="mb-6 text-gray-700 space-y-3 text-justify">
+                        <p><strong>Fundamento:</strong> La principal diferencia radica en el flujo de la información. Un <strong>procedimiento</strong> (equivalente a <code>void</code> en lenguajes estrictos) ejecuta una acción, como imprimir en pantalla o modificar la interfaz, pero no devuelve información al programa principal. Una <strong>función</strong> procesa datos y obligatoriamente utiliza la instrucción <code>return</code> para devolver un resultado, el cual debe ser capturado por una variable en la ejecución principal.</p>
+                    </div>
+
+                    <div class="codigo-fuente"><span class="comentario">// Procedimiento (No retorna valores, solo ejecuta acciones)</span>
+<span class="palabra-clave">function</span> registrarLog(mensaje, idSalida) {
+    <span class="palabra-clave">let</span> fecha = new Date().toLocaleTimeString();
+    <span class="palabra-clave">let</span> logFormateado = <span class="string">`[SISTEMA ${fecha}]: ${mensaje}`</span>;
+    document.getElementById(idSalida).innerText = logFormateado;
+}
+
+<span class="comentario">// Función (Retorna un valor calculado)</span>
+<span class="palabra-clave">function</span> calcularRendimiento(capital, tasa, tiempo) {
+    <span class="palabra-clave">let</span> beneficio = (capital * tasa) * tiempo;
+    <span class="palabra-clave">return</span> beneficio; <span class="comentario">// Obligatorio retornar el dato</span>
+}
+
+<span class="comentario">// Ejecución Principal</span>
+<span class="palabra-clave">let</span> inversion = 5000;
+<span class="palabra-clave">let</span> resultadoFinal = calcularRendimiento(inversion, 0.05, 3); <span class="comentario">// Captura del retorno</span>
+registrarLog(<span class="string">"Rendimiento calculado: $"</span> + resultadoFinal, <span class="string">'out-eje2'</span>);</div>
+
+                    <button onclick="ejecutarEje2()" class="bg-uam-primary hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg mb-4 transition-colors w-full md:w-auto flex items-center justify-center gap-2 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Ejecutar Módulo II
+                    </button>
+                    <div id="out-eje2" class="consola">Esperando ejecución...</div>
+                </section>
+
+                <!-- Eje 3: Paso de Parámetros -->
+                <section class="mb-12 bg-white p-6 md:p-8 rounded-xl shadow-md border-t-4 border-uam-primary">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-uam-primary text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">III</span>
+                        Gestión de Parámetros (Valor vs. Referencia)
+                    </h2>
+                    
+                    <div class="mb-6 text-gray-700 space-y-3 text-justify">
+                        <p><strong>Fundamento:</strong> Cuando enviamos un dato primitivo (como un número o texto) a un subprograma, ocurre un <strong>Paso por Valor</strong>; se envía una "fotocopia" del dato, protegiendo la variable original de modificaciones internas. Por el contrario, al enviar estructuras complejas (como un Objeto o un Arreglo), ocurre un <strong>Paso por Referencia</strong>; se envía la dirección de memoria exacta, por lo que cualquier alteración en el subprograma afectará los datos globales.</p>
+                    </div>
+
+                    <div class="codigo-fuente"><span class="comentario">// Recibe un tipo primitivo (Paso por Valor)</span>
+<span class="palabra-clave">function</span> intentarCobrarPenalidad(saldoLocal) {
+    saldoLocal = saldoLocal - 100; <span class="comentario">// Altera la copia, no el original</span>
+}
+
+<span class="comentario">// Recibe un objeto (Paso por Referencia)</span>
+<span class="palabra-clave">function</span> actualizarInventario(baseDatos) {
+    baseDatos.stock = baseDatos.stock - 1; <span class="comentario">// Altera el objeto original en memoria</span>
+}
+
+<span class="comentario">// --- Ejecución Principal ---</span>
+<span class="palabra-clave">let</span> miSaldoBancario = 1000;
+intentarCobrarPenalidad(miSaldoBancario); 
+<span class="comentario">// Resultado: miSaldoBancario sigue siendo 1000.</span>
+
+<span class="palabra-clave">let</span> producto = { nombre: <span class="string">"Laptop"</span>, stock: 50 };
+actualizarInventario(producto); 
+<span class="comentario">// Resultado: producto.stock ahora es 49.</span></div>
+
+                    <button onclick="ejecutarEje3()" class="bg-uam-primary hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-lg mb-4 transition-colors w-full md:w-auto flex items-center justify-center gap-2 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Ejecutar Módulo III
+                    </button>
+                    <div id="out-eje3" class="consola">Esperando ejecución...</div>
+                </section>
+
+                <!-- Proyecto Final -->
+                <section class="mb-12 bg-white p-6 md:p-8 rounded-xl shadow-md border-t-8 border-uam-secondary">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="bg-uam-secondary text-gray-900 w-8 h-8 rounded-full flex items-center justify-center text-sm">IV</span>
+                        Proyecto de Integración: Sistema de Facturación
+                    </h2>
+                    
+                    <div class="mb-6 text-gray-700 space-y-3 text-justify">
+                        <p><strong>Fundamento:</strong> Este sistema requiere orquestar múltiples subprogramas. Se define un flujo donde la salida (<code>return</code>) de una función se convierte en el argumento de entrada de la siguiente, finalizando con un procedimiento que formatea la salida visual. Se demuestra la cohesión modular y el correcto tránsito de datos sin depender de variables globales innecesarias.</p>
+                    </div>
+
+                    <div class="codigo-fuente"><span class="palabra-clave">const</span> IVA = 0.19; <span class="comentario">// Única variable global justificada</span>
+
+<span class="palabra-clave">function</span> aplicarDescuento(subtotal) { 
+    <span class="palabra-clave">return</span> subtotal - (subtotal * 0.10); <span class="comentario">// Descuento local del 10%</span>
+}
+
+<span class="palabra-clave">function</span> calcularTotal(valorDescontado) { 
+    <span class="palabra-clave">return</span> valorDescontado + (valorDescontado * IVA);
+}
+
+<span class="palabra-clave">function</span> mostrarFactura(cliente, total, idSalida) { 
+    <span class="comentario">// Procedimiento de salida formateada</span>
+    <span class="palabra-clave">let</span> texto = <span class="string">`=== FACTURA ===\nCliente: ${cliente}\nTotal: $${total}\n===============`</span>;
+    document.getElementById(idSalida).innerText = texto;
+}
+
+<span class="comentario">// Ejecución Orquestada</span>
+<span class="palabra-clave">let</span> subtotalInicial = 200000;
+<span class="palabra-clave">let</span> subtotalDescuento = aplicarDescuento(subtotalInicial);
+<span class="palabra-clave">let</span> granTotal = calcularTotal(subtotalDescuento);
+mostrarFactura(<span class="string">"Corporación Omega"</span>, granTotal, <span class="string">'out-proyecto'</span>);</div>
+
+                    <button onclick="ejecutarProyecto()" class="bg-gray-800 hover:bg-black text-white font-bold py-3 px-6 rounded-lg mb-4 transition-colors w-full md:w-auto flex items-center justify-center gap-2 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F4D73B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Ejecutar Sistema Integrado
+                    </button>
+                    <div id="out-proyecto" class="consola">Esperando ejecución...</div>
+                </section>
+            </div>
+
         </div>
     </main>
 
-    <!-- JavaScript para interactividad -->
+    <!-- JavaScript Unificado para la Interactividad -->
     <script>
-        // Inicializar Iconos Lucide
+        // 1. Inicializar Iconos Lucide
         lucide.createIcons();
 
-        // Lógica de Pestañas
+        // 2. Lógica de Pestañas
         function switchTab(tabId) {
-            // Ocultar todos los contenidos
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
 
-            // Resetear todos los botones
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.className = "tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300";
             });
 
-            // Mostrar el tab seleccionado
             document.getElementById('tab-' + tabId).classList.remove('hidden');
 
-            // Activar el botón seleccionado
             const activeBtn = document.getElementById('btn-' + tabId);
             activeBtn.className = "tab-btn px-6 py-3 rounded-t-lg font-bold transition-colors bg-white text-uam-primary border-t-4 border-uam-secondary shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]";
         }
 
-        // Simulación: Alcance
+        // 3. Simulación Visual: Alcance
         let alcanceTimeout1, alcanceTimeout2, alcanceTimeout3;
 
         function resetAlcanceSimulation() {
@@ -508,7 +603,6 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
             clearTimeout(alcanceTimeout2);
             clearTimeout(alcanceTimeout3);
 
-            // UI Reset
             document.getElementById('alc-global-box').className = "p-4 rounded-lg border-2 border-gray-200 bg-white transition-all";
             document.getElementById('alc-global-val').innerText = "1000";
 
@@ -542,7 +636,7 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
             }, 2500);
         }
 
-        // Simulación: Paso por Valor
+        // 4. Simulación Visual: Paso por Valor
         let valorTimeout1, valorTimeout2, valorTimeout3;
 
         function runValorSimulation() {
@@ -550,7 +644,6 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
             clearTimeout(valorTimeout2);
             clearTimeout(valorTimeout3);
 
-            // UI Reset
             document.getElementById('val-arrow-container').classList.remove('opacity-100');
             document.getElementById('val-arrow-container').classList.add('opacity-0');
 
@@ -565,7 +658,6 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
             document.getElementById('val-local-overlay').classList.add('hidden');
             document.getElementById('val-local-overlay').classList.remove('flex');
 
-            // Step 1: Enviar copia
             valorTimeout1 = setTimeout(() => {
                 document.getElementById('val-arrow-container').classList.replace('opacity-0', 'opacity-100');
                 document.getElementById('val-local-box').classList.replace('opacity-30', 'opacity-100');
@@ -573,21 +665,110 @@ console.<span class="text-blue-300">log</span>(<span class="text-green-400">"Est
                 circle.innerText = "1";
             }, 800);
 
-            // Step 2: Modificar copia
             valorTimeout2 = setTimeout(() => {
                 circle.className = "w-16 h-16 rounded-full border-4 border-uam-secondary bg-yellow-50 text-yellow-600 flex items-center justify-center text-2xl font-bold transition-colors duration-500 mx-auto";
                 circle.innerText = "2";
                 document.getElementById('val-local-label').classList.replace('opacity-0', 'opacity-100');
             }, 1600);
 
-            // Step 3: Destruir copia
             valorTimeout3 = setTimeout(() => {
                 document.getElementById('val-local-overlay').classList.remove('hidden');
                 document.getElementById('val-local-overlay').classList.add('flex');
                 document.getElementById('val-arrow-container').classList.replace('opacity-100', 'opacity-0');
             }, 2400);
         }
+
+        // ==============================================================
+        // 5. LÓGICA DEL LABORATORIO PRÁCTICO (Consola y Ejecución real)
+        // ==============================================================
+        function mostrarSalida(idElemento, texto) {
+            const el = document.getElementById(idElemento);
+            el.innerText = texto;
+            el.style.opacity = 0.5;
+            setTimeout(() => el.style.opacity = 1, 100);
+        }
+
+        // Lógica Eje 1
+        let impuestoGlobal = 0.19; 
+        function calcularPrecioFinal(precioBase) {
+            let costoLogistica = 5000; 
+            let historial = "> 1. Precio base procesado: $" + precioBase + "\n";
+            if (precioBase > 100000) {
+                let descuentoEspecial = 0.10; 
+                let valorDescuento = precioBase * descuentoEspecial;
+                precioBase = precioBase - valorDescuento;
+                historial += "> 2. Descuento por volumen aplicado: -$" + valorDescuento + "\n";
+            }
+            let total = precioBase + (precioBase * impuestoGlobal) + costoLogistica;
+            historial += "> 3. Total (incluyendo 19% IVA y $5000 de logística): $" + total;
+            return historial;
+        }
+        function ejecutarEje1() {
+            let resultado = calcularPrecioFinal(150000);
+            mostrarSalida('out-eje1', resultado);
+        }
+
+        // Lógica Eje 2
+        function registrarLog(mensaje, idSalida) {
+            let fecha = new Date().toLocaleTimeString();
+            let logFormateado = `[SISTEMA UAM ${fecha}]: ${mensaje}`;
+            mostrarSalida(idSalida, logFormateado); 
+        }
+        function calcularRendimiento(capital, tasa, tiempo) {
+            return (capital * tasa) * tiempo;
+        }
+        function ejecutarEje2() {
+            let inversionInicial = 5000;
+            let resultadoFinal = calcularRendimiento(inversionInicial, 0.05, 3);
+            registrarLog("Operación exitosa. Rendimiento calculado: $" + resultadoFinal, 'out-eje2');
+        }
+
+        // Lógica Eje 3
+        function intentarCobrarPenalidad(saldoLocal) {
+            saldoLocal = saldoLocal - 100; 
+        }
+        function actualizarInventario(baseDatos) {
+            baseDatos.stock = baseDatos.stock - 1; 
+        }
+        function ejecutarEje3() {
+            let salida = "";
+            let miSaldoBancario = 1000;
+            intentarCobrarPenalidad(miSaldoBancario);
+            salida += `[PASO POR VALOR]\nVariable 'miSaldoBancario' original: $${miSaldoBancario}\n-> Explicación: El valor no cambió. La función restó 100 a una copia en memoria.\n\n`;
+
+            let productoTech = { nombre: "Laptop", stock: 50 };
+            actualizarInventario(productoTech);
+            salida += `[PASO POR REFERENCIA]\nAtributo 'productoTech.stock' original: ${productoTech.stock} unidades\n-> Explicación: El valor fue modificado. La función alteró el objeto original en memoria.`;
+
+            mostrarSalida('out-eje3', salida);
+        }
+
+        // Lógica Proyecto Final
+        const IVA = 0.19;
+        function aplicarDescuento(subtotal) { 
+            let descuento = subtotal * 0.10;
+            return subtotal - descuento;
+        }
+        function calcularTotal(valorDescontado) { 
+            let impuestoCalculado = valorDescontado * IVA;
+            return valorDescontado + impuestoCalculado;
+        }
+        function mostrarFactura(nombreCliente, totalFinal, idSalida) { 
+            let formatoFactura = 
+                "=========================================\n" +
+                "       FACTURA COMERCIAL UAM GENERADA    \n" +
+                "=========================================\n" +
+                " Cliente Registrado: " + nombreCliente + "\n" +
+                " Total a Pagar:      $" + totalFinal.toFixed(2) + "\n" +
+                "=========================================";
+            mostrarSalida(idSalida, formatoFactura);
+        }
+        function ejecutarProyecto() { 
+            let subtotalCompra = 200000;
+            let subtotalConDescuento = aplicarDescuento(subtotalCompra);
+            let granTotal = calcularTotal(subtotalConDescuento);
+            mostrarFactura("Corporación Omega", granTotal, 'out-proyecto');
+        }
     </script>
 </body>
-
 </html>
