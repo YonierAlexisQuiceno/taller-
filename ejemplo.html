@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Promedio de notas</title>
+</head>
+<body>
+
+    <h1>Calcular promedio</h1>
+
+    <label>Nota 1:</label>
+    <input type="number" id="n1">
+
+    <br><br>
+
+    <label>Nota 2:</label>
+    <input type="number" id="n2">
+
+    <br><br>
+
+    <label>Nota 3:</label>
+    <input type="number" id="n3">
+
+    <br><br>
+
+    <button onclick="calcularPromedio()">Calcular</button>
+
+    <p id="resultado"></p>
+
+    <script>
+        // FUNCIÓN
+        function promedio(a, b, c) {
+            return (a + b + c) / 3;
+        }
+
+    
+        function calcularPromedio() {
+            let n1 = parseFloat(document.getElementById("n1").value);
+            let n2 = parseFloat(document.getElementById("n2").value);
+            let n3 = parseFloat(document.getElementById("n3").value);
+
+            let resultado = promedio(n1, n2, n3);
+
+            document.getElementById("resultado").innerText = 
+                "El promedio es: " + resultado.toFixed(2);
+        }
+    </script>
+
+</body>
+</html>
