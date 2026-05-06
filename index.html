@@ -6,239 +6,551 @@
     <title>Laboratorio de Estructuras de Datos - Unidad 4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .array-cell {
-            transition: all 0.3s ease;
-        }
-        .highlight-compare { background-color: #f59e0b !important; color: white; transform: scale(1.1); }
-        .highlight-swap { background-color: #ef4444 !important; color: white; }
-        .highlight-found { background-color: #10b981 !important; color: white; }
-        .code-block { font-family: 'Fira Code', monospace; font-size: 0.85rem; }
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        .array-cell { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .highlight-compare { background-color: #f59e0b !important; border-color: #fbbf24 !important; color: white; transform: scale(1.1); z-index: 10; }
+        .highlight-swap { background-color: #ef4444 !important; border-color: #f87171 !important; color: white; }
+        .highlight-found { background-color: #10b981 !important; border-color: #34d399 !important; color: white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+        .highlight-min { background-color: #8b5cf6 !important; border-color: #a78bfa !important; }
+        .code-block { font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .quiz-option { transition: all 0.2s ease; cursor: pointer; }
+        .quiz-option:hover { background-color: #1e293b; border-color: #3b82f6; }
+        .correct { background-color: #065f46 !important; border-color: #10b981 !important; color: white; }
+        .incorrect { background-color: #7f1d1d !important; border-color: #ef4444 !important; color: white; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
 
-    <header class="max-w-6xl mx-auto mb-8">
-        <h1 class="text-3xl font-bold text-cyan-400">Laboratorio de Replicación: Estructuras de Datos</h1>
-        <p class="text-slate-400 mt-2">Interactúa con el arreglo para ver cómo funcionan los algoritmos por dentro.</p>
+    <header class="max-w-7xl mx-auto mb-10 border-b border-slate-800 pb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                    Laboratorio Unidad 4: Estructuras de Datos
+                </h1>
+                <p class="text-slate-400 mt-2 text-lg">Simulador avanzado de arreglos, cadenas y algoritmos de procesamiento.</p>
+            </div>
+            <div class="flex gap-2 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                <button onclick="setMode('numeric')" id="btn-mode-num" class="px-4 py-2 rounded-md font-semibold transition bg-cyan-600 text-white">Numérico</button>
+                <button onclick="setMode('string')" id="btn-mode-str" class="px-4 py-2 rounded-md font-semibold transition text-slate-400 hover:text-white">Cadenas (char)</button>
+            </div>
+        </div>
     </header>
 
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Panel de Control y Visualización -->
-        <div class="lg:col-span-2 space-y-6">
+        <!-- Panel Izquierdo: Visualización y Controles (8 cols) -->
+        <div class="lg:col-span-8 space-y-6">
             
-            <!-- Visualización del Arreglo -->
-            <div class="bg-slate-800 p-8 rounded-xl border border-slate-700">
-                <h2 class="text-xl font-semibold mb-6 flex justify-between items-center">
-                    Estado del Arreglo (Memoria)
-                    <span id="array-size" class="text-sm bg-slate-700 px-3 py-1 rounded-full text-cyan-300 font-mono">Size: 0</span>
+            <!-- Visualización del Arreglo (Memoria RAM) -->
+            <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fas fa-microchip text-6xl text-cyan-400"></i>
+                </div>
+                
+                <h2 class="text-xl font-bold mb-8 flex justify-between items-center">
+                    <span class="flex items-center gap-2">
+                        <span class="w-3 h-3 bg-cyan-500 rounded-full animate-pulse"></span>
+                        Estado de la Memoria Contigua
+                    </span>
+                    <span id="array-size" class="text-xs bg-slate-800 px-4 py-1.5 rounded-full text-cyan-400 font-mono border border-slate-700">ELEMENTOS: 0</span>
                 </h2>
-                <div id="array-container" class="flex flex-wrap gap-2 justify-center min-h-[80px] items-center">
-                    <!-- Las celdas se generan aquí -->
+                
+                <div id="array-container" class="flex flex-wrap gap-3 justify-center min-h-[120px] items-center py-4">
+                    <!-- Celdas dinámicas -->
+                </div>
+
+                <div id="null-terminator-info" class="hidden mt-6 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg text-sm text-blue-300">
+                    <strong>Nota de Cadenas:</strong> El carácter <code class="bg-blue-900 px-1 rounded">'\0'</code> indica al sistema donde termina la cadena en memoria.
                 </div>
             </div>
 
-            <!-- Controles -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold mb-4 uppercase text-xs tracking-wider">Operaciones Básicas</h3>
+            <!-- Grilla de Controles -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Operaciones de Estructura -->
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <h3 class="text-cyan-400 font-bold mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Básicas
+                    </h3>
                     <div class="space-y-3">
-                        <div class="flex gap-2">
-                            <input type="number" id="input-val" placeholder="Valor" class="bg-slate-900 border border-slate-700 rounded px-3 py-2 w-full focus:outline-none focus:border-cyan-500">
-                            <button onclick="handleInsert()" class="bg-cyan-600 hover:bg-cyan-500 px-4 py-2 rounded font-bold transition">Insertar</button>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="number" id="delete-val" placeholder="Eliminar valor" class="bg-slate-900 border border-slate-700 rounded px-3 py-2 w-full focus:outline-none focus:border-red-500">
-                            <button onclick="handleDelete()" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded font-bold transition">Eliminar</button>
+                        <div class="flex flex-col gap-2">
+                            <input type="text" id="input-val" placeholder="Valor/Char" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:border-cyan-500 transition font-mono">
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="handleInsert()" class="bg-cyan-600 hover:bg-cyan-500 py-2 rounded-lg font-bold text-sm">Insertar</button>
+                                <button onclick="handleDelete()" class="bg-slate-800 hover:bg-red-600 py-2 rounded-lg font-bold text-sm transition">Eliminar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-                    <h3 class="text-cyan-400 font-bold mb-4 uppercase text-xs tracking-wider">Procesamiento</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="bubbleSort()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded transition flex-1">Burbuja</button>
-                        <button onclick="linearSearch()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded transition flex-1">Busq. Lineal</button>
-                        <button onclick="shuffleArray()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded transition flex-1">Desordenar</button>
+                <!-- Algoritmos de Ordenamiento -->
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <h3 class="text-blue-400 font-bold mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+                        Ordenamientos
+                    </h3>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button onclick="bubbleSort()" class="bg-slate-800 hover:bg-slate-700 py-2 px-3 rounded-lg text-sm text-left flex justify-between items-center group">
+                            Burbuja <span class="opacity-0 group-hover:opacity-100 text-[10px] bg-cyan-900 text-cyan-300 px-1.5 rounded">O(n²)</span>
+                        </button>
+                        <button onclick="selectionSort()" class="bg-slate-800 hover:bg-slate-700 py-2 px-3 rounded-lg text-sm text-left flex justify-between items-center group">
+                            Selección <span class="opacity-0 group-hover:opacity-100 text-[10px] bg-blue-900 text-blue-300 px-1.5 rounded">O(n²)</span>
+                        </button>
+                        <button onclick="insertionSort()" class="bg-slate-800 hover:bg-slate-700 py-2 px-3 rounded-lg text-sm text-left flex justify-between items-center group">
+                            Inserción <span class="opacity-0 group-hover:opacity-100 text-[10px] bg-indigo-900 text-indigo-300 px-1.5 rounded">O(n²)</span>
+                        </button>
                     </div>
+                </div>
+
+                <!-- Búsqueda y Recorrido -->
+                <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        Procesamiento
+                    </h3>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button onclick="linearSearch()" class="bg-slate-800 hover:bg-emerald-900/40 py-2 px-3 rounded-lg text-sm text-left transition">Búsqueda Lineal</button>
+                        <button onclick="traverse()" class="bg-slate-800 hover:bg-slate-700 py-2 px-3 rounded-lg text-sm text-left transition">Recorrido (Total)</button>
+                        <button onclick="shuffleArray()" class="bg-slate-800 hover:bg-slate-700 py-2 px-3 rounded-lg text-sm text-left transition border-t border-slate-700 mt-1 italic text-slate-400">Desordenar datos</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Zona de Cuestionario (Nueva Sección) -->
+            <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl">
+                <h3 class="text-xl font-bold text-amber-400 mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Desafío de Conocimiento
+                </h3>
+                <div id="quiz-container">
+                    <p id="quiz-question" class="text-lg mb-4 font-semibold text-slate-200">Cargando desafío...</p>
+                    <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- Opciones de respuesta -->
+                    </div>
+                    <div id="quiz-feedback" class="mt-4 p-3 rounded-lg hidden text-sm font-medium"></div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button onclick="nextQuestion()" class="bg-slate-800 hover:bg-slate-700 px-6 py-2 rounded-lg text-sm font-bold border border-slate-700 transition">Siguiente Pregunta</button>
                 </div>
             </div>
 
-            <!-- Consola de Log -->
-            <div id="log" class="bg-black p-4 rounded-xl border border-slate-700 h-32 overflow-y-auto text-sm font-mono text-green-400">
-                > Sistema listo. Esperando operaciones...
+            <!-- Log de Actividad -->
+            <div id="log" class="bg-slate-950 p-5 rounded-2xl border border-slate-800 h-40 overflow-y-auto text-sm font-mono text-emerald-500 shadow-inner">
+                <div class="text-slate-500 italic mb-2">// Consola de ejecución lista...</div>
+                <div class="flex items-center gap-2"><span class="text-cyan-500">➜</span> Sistema inicializado Unidad 4.</div>
             </div>
         </div>
 
-        <!-- Panel de Código (Replicación) -->
-        <div class="bg-slate-800 rounded-xl border border-slate-700 flex flex-col overflow-hidden">
-            <div class="bg-slate-700 px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-300">
-                Lógica del Algoritmo (JavaScript)
+        <!-- Panel Derecho: Código (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden flex-1 flex flex-col shadow-2xl">
+                <div class="bg-slate-800 px-5 py-3 text-xs font-bold uppercase tracking-widest text-slate-400 border-b border-slate-700 flex justify-between items-center">
+                    Lógica del Algoritmo
+                    <span id="algo-name" class="text-cyan-400">Esperando...</span>
+                </div>
+                <div class="relative flex-1 bg-slate-950/50">
+                    <pre id="code-display" class="p-6 text-cyan-200 code-block overflow-x-auto whitespace-pre h-[500px]">
+// Selecciona una operación
+// para analizar su flujo
+// de control y lógica.
+                    </pre>
+                </div>
             </div>
-            <pre id="code-display" class="p-6 text-cyan-200 code-block overflow-x-auto whitespace-pre-wrap flex-1 bg-slate-900/50">
-// Selecciona una operación 
-// para ver el código fuente
-            </pre>
+
+            <div class="bg-blue-900/10 border border-blue-900/50 p-5 rounded-2xl">
+                <h4 class="text-blue-400 font-bold text-xs uppercase mb-2">Tip de Ingeniería</h4>
+                <p class="text-xs text-blue-200 leading-relaxed">
+                    Recuerda que la <strong>Búsqueda Binaria</strong> (no mostrada aquí pero vital) solo funciona si el arreglo está previamente ordenado.
+                </p>
+            </div>
         </div>
     </main>
 
     <script>
         let array = [45, 12, 8, 33, 21];
+        let mode = 'numeric'; // 'numeric' o 'string'
         const container = document.getElementById('array-container');
         const codeDisplay = document.getElementById('code-display');
         const log = document.getElementById('log');
+        const algoName = document.getElementById('algo-name');
+
+        // Cuestionario Data
+        const quizData = [
+            {
+                q: "¿En qué área de la memoria se gestionan los arreglos estáticos de tamaño fijo?",
+                options: ["Stack (Pila)", "Heap (Montículo)", "CPU Cache", "VRAM"],
+                correct: 0,
+                feedback: "La memoria estática se define en tiempo de compilación y se gestiona automáticamente en el Stack."
+            },
+            {
+                q: "¿Qué sucede con los elementos a la derecha cuando eliminas un dato en medio de un arreglo?",
+                options: ["Se borran automáticamente", "Se desplazan a la izquierda", "Se desplazan a la derecha", "Queda un hueco vacío"],
+                correct: 1,
+                feedback: "Para mantener la contigüidad, los elementos posteriores deben 'compactarse' moviéndose a la izquierda."
+            },
+            {
+                q: "¿Cuál es el propósito del carácter '\\0' en un arreglo de caracteres (String)?",
+                options: ["Indicar el inicio", "Representar el espacio", "Marcar el final de la cadena", "Encriptar el texto"],
+                correct: 2,
+                feedback: "El centinela o carácter nulo indica al sistema dónde termina el texto útil dentro del arreglo."
+            },
+            {
+                q: "¿Cuál es la complejidad temporal (Peor Caso) del algoritmo Burbuja?",
+                options: ["O(1)", "O(n)", "O(log n)", "O(n²)"],
+                correct: 3,
+                feedback: "Debido a los dos bucles anidados que comparan pares, su complejidad es cuadrática O(n²)."
+            },
+            {
+                q: "¿Cuál es el requisito indispensable para poder realizar una Búsqueda Binaria?",
+                options: ["Arreglo desordenado", "Arreglo ordenado", "Memoria dinámica", "Elementos de tipo String"],
+                correct: 1,
+                feedback: "La búsqueda binaria divide el espacio a la mitad, lo cual solo es posible si los datos están en orden."
+            }
+        ];
+        let currentQuizIdx = 0;
 
         function updateUI() {
             container.innerHTML = '';
             array.forEach((val, index) => {
+                const isNull = val === '\\0';
                 const cell = document.createElement('div');
-                cell.className = 'array-cell w-14 h-14 bg-slate-700 border-2 border-slate-600 rounded-lg flex flex-col items-center justify-center font-bold relative';
+                cell.className = `array-cell w-14 h-14 ${isNull ? 'bg-slate-800 border-dashed border-slate-600' : 'bg-slate-800 border-slate-700'} border-2 rounded-xl flex flex-col items-center justify-center font-bold relative shadow-lg`;
                 cell.innerHTML = `
-                    <span class="text-xs text-slate-400 absolute -top-5">${index}</span>
-                    <span>${val}</span>
+                    <span class="text-[10px] text-slate-500 absolute -top-6 font-mono">IDX:${index}</span>
+                    <span class="${isNull ? 'text-blue-500' : 'text-slate-100'}">${val}</span>
                 `;
                 cell.id = `cell-${index}`;
                 container.appendChild(cell);
             });
-            document.getElementById('array-size').innerText = `Size: ${array.length}`;
+            document.getElementById('array-size').innerText = `ELEMENTOS: ${array.length}`;
+            document.getElementById('null-terminator-info').classList.toggle('hidden', mode !== 'string');
         }
 
-        function writeLog(msg) {
-            log.innerHTML += `<div>> ${msg}</div>`;
+        function writeLog(msg, type = 'info') {
+            const colors = { info: 'text-emerald-500', error: 'text-red-400', warn: 'text-amber-400' };
+            const div = document.createElement('div');
+            div.className = "mb-1";
+            div.innerHTML = `<span class="text-slate-600 mr-2">[${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}]</span> <span class="${colors[type]}">${msg}</span>`;
+            log.appendChild(div);
             log.scrollTop = log.scrollHeight;
         }
 
         function showCode(type) {
             const codes = {
-                insert: `// Insertar al final
-function insert(val) {
-  array.push(val);
-  updateUI();
+                insert: `// Operación: Insertar al Final
+function insertar(dato) {
+  // 1. Verificar capacidad (memoria estática)
+  if (array.length >= CAPACIDAD_MAX) return;
+  
+  // 2. Asignar en la última posición contigua
+  array.push(dato);
+  
+  // 3. Actualizar tamaño lógico
+  actualizarIndices();
 }`,
-                delete: `// Eliminar por valor
-function remove(val) {
-  const index = array.indexOf(val);
+                delete: `// Operación: Eliminar y Compactar
+function eliminar(dato) {
+  // 1. Buscar el elemento
+  let index = buscar(dato);
+  
+  // 2. Si existe, remover
   if (index > -1) {
+    // 3. Compactación: los elementos a la 
+    // derecha se mueven a la izquierda
     array.splice(index, 1);
   }
 }`,
-                bubble: `// Ordenamiento Burbuja
+                bubble: `// Algoritmo: Burbuja (Bubble Sort)
 for(let i=0; i < n-1; i++) {
   for(let j=0; j < n-i-1; j++) {
+    // Comparar adyacentes
     if(array[j] > array[j+1]) {
+      // Intercambio (Swap)
       let aux = array[j];
       array[j] = array[j+1];
       array[j+1] = aux;
     }
   }
 }`,
-                search: `// Búsqueda Lineal
-function find(target) {
-  for(let i=0; i < array.length; i++) {
-    if(array[i] === target) return i;
+                selection: `// Algoritmo: Selección (Selection Sort)
+for (let i = 0; i < n - 1; i++) {
+  let minIdx = i;
+  for (let j = i + 1; j < n; j++) {
+    // Buscar el menor del resto
+    if (array[j] < array[minIdx]) {
+      minIdx = j;
+    }
   }
-  return -1;
-}`
+  // Intercambiar con el actual
+  swap(array, i, minIdx);
+}`,
+                insertion: `// Algoritmo: Inserción (Insertion Sort)
+for (let i = 1; i < n; i++) {
+  let actual = array[i];
+  let j = i - 1;
+  // Desplazar elementos mayores a la derecha
+  while (j >= 0 && array[j] > actual) {
+    array[j + 1] = array[j];
+    j--;
+  }
+  array[j + 1] = actual;
+}`,
+                search: `// Procesamiento: Búsqueda Lineal
+function buscar(objetivo) {
+  // Recorrido secuencial
+  for(let i=0; i < array.length; i++) {
+    if(array[i] === objetivo) {
+      return i; // Éxito
+    }
+  }
+  return -1; // Fallo
+}`,
+                traverse: `// Operación: Recorrido Completo
+let total = 0;
+// Visitar cada posición exactamente una vez
+array.forEach(elemento => {
+  procesar(elemento);
+  total += (typeof elemento === 'number') ? elemento : 1;
+});`
             };
             codeDisplay.textContent = codes[type] || "// Operación seleccionada";
+            algoName.innerText = type.toUpperCase();
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.getElementById('btn-mode-num').className = mode === 'numeric' ? 'px-4 py-2 rounded-md font-semibold bg-cyan-600 text-white' : 'px-4 py-2 rounded-md font-semibold text-slate-400 hover:text-white';
+            document.getElementById('btn-mode-str').className = mode === 'string' ? 'px-4 py-2 rounded-md font-semibold bg-blue-600 text-white' : 'px-4 py-2 rounded-md font-semibold text-slate-400 hover:text-white';
+            
+            array = mode === 'numeric' ? [45, 12, 8, 33, 21] : ['H', 'o', 'l', 'a', '\\0'];
+            writeLog(`Modo cambiado a: ${mode === 'numeric' ? 'Arreglo Numérico' : 'Cadena de Caracteres (String)'}`);
+            updateUI();
         }
 
         function handleInsert() {
-            const val = parseInt(document.getElementById('input-val').value);
-            if(isNaN(val)) return;
-            array.push(val);
-            writeLog(`Insertado valor ${val} en la posición ${array.length - 1}`);
+            let val = document.getElementById('input-val').value;
+            if(!val) return;
+            
+            if(mode === 'numeric') {
+                val = parseInt(val);
+                if(isNaN(val)) { writeLog("Error: Debe ser un número", 'error'); return; }
+                array.push(val);
+            } else {
+                const nullIdx = array.indexOf('\\0');
+                if(nullIdx > -1) array.splice(nullIdx, 0, val.charAt(0));
+                else array.push(val.charAt(0));
+            }
+            
+            writeLog(`Insertado '${val}' en memoria.`);
             showCode('insert');
             updateUI();
             document.getElementById('input-val').value = '';
         }
 
         async function handleDelete() {
-            const val = parseInt(document.getElementById('delete-val').value);
+            let val = document.getElementById('delete-val').value;
+            if(!val) return;
+            if(mode === 'numeric') val = parseInt(val);
+
             showCode('delete');
             const idx = array.indexOf(val);
             if(idx === -1) {
-                writeLog(`Error: Valor ${val} no encontrado.`);
+                writeLog(`Valor '${val}' no encontrado.`, 'error');
                 return;
             }
             
             document.getElementById(`cell-${idx}`).classList.add('highlight-swap');
-            writeLog(`Eliminando ${val} en índice ${idx}. Compactando...`);
+            writeLog(`Eliminando dato en índice ${idx}. Compactando adyacentes...`);
             
-            setTimeout(() => {
-                array.splice(idx, 1);
-                updateUI();
-            }, 500);
+            await new Promise(r => setTimeout(r, 600));
+            array.splice(idx, 1);
+            updateUI();
+            document.getElementById('delete-val').value = '';
         }
 
         async function bubbleSort() {
             showCode('bubble');
-            writeLog("Iniciando Ordenamiento Burbuja...");
+            writeLog("Iniciando Burbuja...");
             let n = array.length;
             for (let i = 0; i < n - 1; i++) {
                 for (let j = 0; j < n - i - 1; j++) {
-                    const cell1 = document.getElementById(`cell-${j}`);
-                    const cell2 = document.getElementById(`cell-${j+1}`);
-                    
-                    cell1.classList.add('highlight-compare');
-                    cell2.classList.add('highlight-compare');
-                    
-                    await new Promise(r => setTimeout(r, 600));
-
+                    if (array[j] === '\\0' || array[j+1] === '\\0') continue;
+                    const c1 = document.getElementById(`cell-${j}`);
+                    const c2 = document.getElementById(`cell-${j+1}`);
+                    c1.classList.add('highlight-compare');
+                    c2.classList.add('highlight-compare');
+                    await new Promise(r => setTimeout(r, 400));
                     if (array[j] > array[j + 1]) {
-                        writeLog(`Swap: ${array[j]} > ${array[j+1]}`);
-                        cell1.classList.add('highlight-swap');
-                        cell2.classList.add('highlight-swap');
-                        
-                        let temp = array[j];
-                        array[j] = array[j + 1];
-                        array[j + 1] = temp;
-                        
+                        c1.classList.add('highlight-swap');
+                        c2.classList.add('highlight-swap');
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
                         updateUI();
-                        // Re-fetch elements after UI update
-                        document.getElementById(`cell-${j}`).classList.add('highlight-compare');
-                        document.getElementById(`cell-${j+1}`).classList.add('highlight-compare');
+                        document.getElementById(`cell-${j}`).classList.add('highlight-compare', 'highlight-swap');
+                        document.getElementById(`cell-${j+1}`).classList.add('highlight-compare', 'highlight-swap');
                     }
-                    
                     await new Promise(r => setTimeout(r, 200));
                     updateUI();
                 }
             }
-            writeLog("Ordenamiento completado.");
+            writeLog("Burbuja finalizada.");
+        }
+
+        async function selectionSort() {
+            showCode('selection');
+            writeLog("Iniciando Selección...");
+            let n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                if(array[i] === '\\0') continue;
+                let minIdx = i;
+                document.getElementById(`cell-${i}`).classList.add('highlight-compare');
+                for (let j = i + 1; j < n; j++) {
+                    if(array[j] === '\\0') continue;
+                    const cJ = document.getElementById(`cell-${j}`);
+                    cJ.classList.add('highlight-compare');
+                    await new Promise(r => setTimeout(r, 300));
+                    if (array[j] < array[minIdx]) {
+                        if(minIdx !== i) document.getElementById(`cell-${minIdx}`).classList.remove('highlight-min');
+                        minIdx = j;
+                        document.getElementById(`cell-${minIdx}`).classList.add('highlight-min');
+                    }
+                    cJ.classList.remove('highlight-compare');
+                }
+                if (minIdx !== i) {
+                    document.getElementById(`cell-${i}`).classList.add('highlight-swap');
+                    document.getElementById(`cell-${minIdx}`).classList.add('highlight-swap');
+                    await new Promise(r => setTimeout(r, 400));
+                    [array[i], array[minIdx]] = [array[minIdx], array[i]];
+                }
+                updateUI();
+            }
+            writeLog("Selección finalizada.");
+        }
+
+        async function insertionSort() {
+            showCode('insertion');
+            writeLog("Iniciando Inserción...");
+            let n = array.length;
+            for (let i = 1; i < n; i++) {
+                if(array[i] === '\\0') continue;
+                let actual = array[i];
+                let j = i - 1;
+                document.getElementById(`cell-${i}`).classList.add('highlight-min');
+                await new Promise(r => setTimeout(r, 400));
+                while (j >= 0 && array[j] !== '\\0' && array[j] > actual) {
+                    document.getElementById(`cell-${j}`).classList.add('highlight-compare');
+                    await new Promise(r => setTimeout(r, 300));
+                    array[j + 1] = array[j];
+                    updateUI();
+                    document.getElementById(`cell-${j+1}`).classList.add('highlight-compare');
+                    j--;
+                }
+                array[j + 1] = actual;
+                updateUI();
+                await new Promise(r => setTimeout(r, 300));
+            }
+            writeLog("Inserción finalizada.");
         }
 
         async function linearSearch() {
-            const target = parseInt(document.getElementById('input-val').value);
-            if(isNaN(target)) {
-                writeLog("Escribe un valor en 'Insertar' para buscarlo.");
-                return;
-            }
+            let target = document.getElementById('input-val').value;
+            if(!target) { writeLog("Escribe el valor a buscar en el input.", 'warn'); return; }
+            if(mode === 'numeric') target = parseInt(target);
             showCode('search');
-            writeLog(`Buscando ${target} linealmente...`);
-
+            writeLog(`Buscando '${target}'...`);
             for(let i=0; i<array.length; i++) {
                 const cell = document.getElementById(`cell-${i}`);
                 cell.classList.add('highlight-compare');
-                await new Promise(r => setTimeout(r, 500));
-                
+                await new Promise(r => setTimeout(r, 400));
                 if(array[i] === target) {
                     cell.classList.replace('highlight-compare', 'highlight-found');
-                    writeLog(`¡Encontrado en índice ${i}!`);
+                    writeLog(`¡Encontrado en índice ${i}!`, 'info');
                     return;
                 }
                 cell.classList.remove('highlight-compare');
             }
-            writeLog("Valor no encontrado en el arreglo.");
+            writeLog("Elemento no encontrado.", 'error');
+        }
+
+        async function traverse() {
+            showCode('traverse');
+            writeLog("Iniciando Recorrido...");
+            let count = 0;
+            for(let i=0; i<array.length; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                cell.classList.add('bg-cyan-500/30');
+                await new Promise(r => setTimeout(r, 300));
+                if(array[i] !== '\\0') count++;
+                cell.classList.remove('bg-cyan-500/30');
+            }
+            writeLog(`Procesados: ${count} elementos.`);
         }
 
         function shuffleArray() {
-            array = array.sort(() => Math.random() - 0.5);
-            writeLog("Arreglo desordenado aleatoriamente.");
+            let hasNull = array.indexOf('\\0');
+            let toShuffle = hasNull > -1 ? array.slice(0, hasNull) : [...array];
+            toShuffle.sort(() => Math.random() - 0.5);
+            array = hasNull > -1 ? [...toShuffle, '\\0'] : toShuffle;
+            writeLog("Datos desordenados.");
             updateUI();
         }
 
-        // Inicializar
-        window.onload = updateUI;
+        // QUIZ LOGIC
+        function loadQuizQuestion() {
+            const data = quizData[currentQuizIdx];
+            document.getElementById('quiz-question').innerText = data.q;
+            const optionsCont = document.getElementById('quiz-options');
+            optionsCont.innerHTML = '';
+            document.getElementById('quiz-feedback').classList.add('hidden');
+
+            data.options.forEach((opt, i) => {
+                const btn = document.createElement('div');
+                btn.className = "quiz-option bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm font-medium";
+                btn.innerText = opt;
+                btn.onclick = () => checkQuizAnswer(i);
+                optionsCont.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selected) {
+            const data = quizData[currentQuizIdx];
+            const options = document.getElementById('quiz-options').children;
+            const feedback = document.getElementById('quiz-feedback');
+
+            // Reset classes
+            for(let opt of options) opt.className = "quiz-option bg-slate-800 border border-slate-700 p-4 rounded-xl text-sm font-medium pointer-events-none";
+
+            if(selected === data.correct) {
+                options[selected].classList.add('correct');
+                feedback.className = "mt-4 p-3 rounded-lg text-sm font-medium bg-emerald-900/30 text-emerald-400 border border-emerald-500/30 block";
+                feedback.innerHTML = `<strong>¡Correcto!</strong> ${data.feedback}`;
+            } else {
+                options[selected].classList.add('incorrect');
+                options[data.correct].classList.add('correct');
+                feedback.className = "mt-4 p-3 rounded-lg text-sm font-medium bg-red-900/30 text-red-400 border border-red-500/30 block";
+                feedback.innerHTML = `<strong>Incorrecto.</strong> ${data.feedback}`;
+            }
+        }
+
+        function nextQuestion() {
+            currentQuizIdx = (currentQuizIdx + 1) % quizData.length;
+            loadQuizQuestion();
+        }
+
+        window.onload = () => {
+            updateUI();
+            loadQuizQuestion();
+        };
     </script>
 </body>
 </html>
